@@ -3,18 +3,13 @@ name = "qpyci"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.9"
-dependencies = [
-    "typer>=0.15.1",
-]
+requires-python = ">3.9"
+dependencies = ["typer>=0.15.1"]
 
 [project.scripts]
 qpyci = "qpyci.cli:main"
-cleanup="qpyci.commands:clean"
+cleanup = "qpyci.commands:clean"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-
-
