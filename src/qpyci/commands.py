@@ -4,6 +4,9 @@ import sys
 import importlib.util
 from pathlib import Path
 
+root = Path.cwd()
+BUILD_DIRs = [root / "dist", root / "build",root/'__pycache__',root/'.pytest_cache/']
+
 def generate_badge():
     coverage_badge_exe = shutil.which("coverage-badge")
     if coverage_badge_exe is not None:
@@ -16,10 +19,10 @@ def generate_badge():
 
     return 0
 
-def clean():
-    root = Path.cwd()
 
-    for directory in (root / "dist", root / "build",root/'__pycache__',root/'.pytest_cache/'):
+def clean():
+
+    for directory in BUILD_DIRs:
         if directory.exists():
             shutil.rmtree(directory, ignore_errors=True)
 

@@ -1,28 +1,47 @@
 # qpyci
 
-CI helper CLI for Python projects, intended to bundle common CI/maintenance tasks behind a single, installable command (works well alongside `uv`).
+CI helper CLI for Python projects.
 
-## What it does
+## Use in a new project
 
-- Generates a coverage badge via `coverage-badge`
-- Cleans common build artifacts (`dist/`, `build/`, `*.egg-info`)
-- Runs `pytest` with coverage for a given import target
+Add `qpyci` to your project (usually as a dev dependency) and call it from CI.
 
-## Installation
-
-Editable install (local development):
+Install from GitHub:
 
 ```bash
-python -m pip install -e .
+python -m pip install "qpyci @ git+https://github.com/fluent-qa/qpyci.git"
 ```
 
 If you use `uv`:
 
 ```bash
-uv pip install -e .
+uv pip install "qpyci @ git+https://github.com/fluent-qa/qpyci.git"
 ```
 
-## Usage
+Pin to a tag/commit for reproducible CI:
+
+```bash
+python -m pip install "qpyci @ git+https://github.com/fluent-qa/qpyci.git@v0.1.0"
+```
+
+Optional: add script aliases in your project’s `pyproject.toml` so CI can call stable names:
+
+```toml
+[project.scripts]
+ci-clean = "qpyci.commands:clean"
+ci-badge = "qpyci.commands:generate_badge"
+```
+
+Then call them:
+
+```bash
+ci-clean
+qpyci coverage your_package
+```
+
+If the GitHub repo is private, use either an SSH remote (`git+ssh://...`) or an HTTPS URL with a GitHub token (PAT) available to your CI.
+
+## CLI
 
 Show available commands:
 
@@ -30,16 +49,16 @@ Show available commands:
 qpyci --help
 ```
 
-Generate `coverage.svg` (requires `coverage-badge` on `PATH`):
-
-```bash
-qpyci badge
-```
-
 Clean build artifacts:
 
 ```bash
 qpyci clean
+```
+
+Generate `coverage.svg` (requires `coverage-badge` on `PATH`):
+
+```bash
+qpyci badge
 ```
 
 An alias entry point is also installed:
