@@ -1,25 +1,20 @@
 import typer
-from qpyci.commands import generate_badge, clean, run_tests,run_commands_from_file
+import qpyci
 
 app = typer.Typer()
 
 @app.command()
 def badge():
-    generate_badge()
+    qpyci.generate_badge()
 
 @app.command()
 def clean():
-    clean()
+    qpyci.clean()
 
 @app.command()
 def coverage(cov_target: str):
     """Run tests with coverage for the specified target."""
-    run_tests(cov_target)
-
-@app.command()
-def run(file_path: str = typer.Option(..., help="Path to the file containing commands to run.")):
-    """Run commands from the specified file."""
-    run_commands_from_file(file_path)
+    raise typer.Exit(code=qpyci.run_tests(cov_target))
 
 def main():
     app()

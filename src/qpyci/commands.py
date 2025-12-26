@@ -1,25 +1,45 @@
 import subprocess
+import shutil
+import sys
+import importlib.util
+from pathlib import Path
 
 def generate_badge():
-    subprocess.run(['coverage-badge', '-f', '-o', 'coverage.svg'])
+    coverage_badge_exe = shutil.which("coverage-badge")
+    if coverage_badge_exe is not None:
+        return subprocess.run([coverage_badge_exe, "-f", "-o", "coverage.svg"]).returncode
+
+    if importlib.util.find_spec("coverage_badge") is not None:
+        return subprocess.run(
+            [sys.executable, "-m", "coverage_badge", "-f", "-o", "coverage.svg"]
+        ).returncode
+
+    return 0
 
 def clean():
-    subprocess.run(['rm', '-rf', 'dist/', 'build/', '*.egg-info'])
+    root = Path.cwd()
 
-def run_tests(cov_target: str):
-    subprocess.run(['pytest', '--cov-report', 'term', f'--cov={cov_target}', 'tests/'])
+    for directory in (root / "dist", root / "build",root/'__pycache__'):
+        if directory.exists():
+            shutil.rmtree(directory, ignore_errors=True)
 
-
-def run_commands_from_file(file_path:str):
-    """Run commands from a given file."""
-    with open(file_path, 'r') as file:
-        commands = file.readlines()
-    
-    for command in commands:
-        command = command.strip()
-        if command:  # Ensure the command is not empty
+    for egg_info_path in root.glob("*.egg-info"):
+        if egg_info_path.is_dir():
+            shutil.rmtree(egg_info_path, ignore_errors=True)
+        else:
             try:
-                result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
-                print(f"Output of '{command}': {result.stdout}")
-            except subprocess.CalledProcessError as e:
-                print(f"Error while executing '{command}': {e.stderr}")
+                egg_info_path.unlink()
+            except FileNotFoundError:
+                pass
+
+def run_tests(cov_target: str) -> int:
+    args = [
+        sys.executable,
+        "-m",
+        "pytest",
+    ]
+    if importlib.util.find_spec("pytest_cov") is not None:
+        args.extend(["--cov-report", "term", f"--cov={cov_target}"])
+    if Path("tests").is_dir():
+        args.append("tests")
+    return subprocess.run(args).returncode
