@@ -19,7 +19,7 @@ def generate_badge():
 def clean():
     root = Path.cwd()
 
-    for directory in (root / "dist", root / "build",root/'__pycache__'):
+    for directory in (root / "dist", root / "build",root/'__pycache__',root/'.pytest_cache/'):
         if directory.exists():
             shutil.rmtree(directory, ignore_errors=True)
 
