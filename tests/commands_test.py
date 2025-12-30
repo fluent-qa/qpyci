@@ -1,11 +1,9 @@
-
-import qpyci
+import qpyci.commands as c
 
 
 def test_badge():
-    qpyci.generate_badge()
+    c.generate_badge()
 
 
 def test_clean():
-    qpyci.clean()
-
+    c.cleanup()
