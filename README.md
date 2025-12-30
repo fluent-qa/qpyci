@@ -28,8 +28,10 @@ Optional: add script aliases in your project’s `pyproject.toml` so CI can call
 
 ```toml
 [project.scripts]
-ci-clean = "qpyci.commands:clean"
+ci-clean = "qpyci.commands:cleanup"
 ci-badge = "qpyci.commands:generate_badge"
+ci-format = "qpyci.commands:check_format"
+ci = "qpyci.commands:ci"
 ```
 
 Then call them:
@@ -49,27 +51,33 @@ Show available commands:
 qpyci --help
 ```
 
-Clean build artifacts:
+Clean build artifacts (build/, dist/, caches, __pycache__):
 
 ```bash
-qpyci clean
+qpyci cleanup
 ```
 
-Generate `coverage.svg` (requires `coverage-badge` on `PATH`):
+Generate `coverage.svg` (uses `coverage-badge` if available; otherwise no-op):
 
 ```bash
 qpyci badge
-```
-
-An alias entry point is also installed:
-
-```bash
-cleanup
 ```
 
 Run tests with coverage for a target (requires `pytest`; uses `pytest-cov` if installed; exits with pytest’s status code):
 
 ```bash
 qpyci coverage qpyci
+```
+
+Run ruff autofix + format (requires `uv`/`uvx` and `ruff`):
+
+```bash
+qpyci check-format
+```
+
+Run format + tests + badge:
+
+```bash
+qpyci ci
 ```
 
