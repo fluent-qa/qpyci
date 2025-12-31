@@ -1,13 +1,8 @@
 import qpyci.commands as c
 
 
-def test_badge():
-    c.generate_badge()
-
-
-def test_ci():
+def test_all():
+    c.check_format()
     c.ci()
-
-
-def test_clean():
+    c.generate_badge()
     c.cleanup()

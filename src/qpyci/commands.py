@@ -145,6 +145,9 @@ def _safe_rmtree(path: Path, *, root: Path) -> None:
                     _log(f"cleanup: failed to delete quarantined directory: {moved}")
                     _log(traceback.format_exc())
         return
+    elif path.is_file():
+        os.remove(path)
+        return
     _safe_unlink(path)
 
 
@@ -172,7 +175,7 @@ def _clean_artifacts() -> None:
         _safe_rmtree(p, root=root)
 
     still_there: list[Path] = []
-    for name in [".ruff_cache", "allure-results", ".pytest_cache"]:
+    for name in [".ruff_cache", "allure-results", ".pytest_cache", ".coverage", "coverage.xml"]:
         p = root / name
         if p.exists():
             still_there.append(p)
