@@ -40,3 +40,6 @@ addopts = [
     "qpyci",
 ]
 minversion = "6.0"
+
+[tool.coverage.run]
+disable_warnings = ["module-not-measured"]

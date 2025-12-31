@@ -7,6 +7,7 @@ import os
 import stat
 import traceback
 import time
+from typing import Any
 from typing import List
 
 root = Path.cwd()
@@ -165,6 +166,7 @@ def _clean_artifacts() -> None:
         "allure-results",
         ".coverage",
         "coverage.xml",
+        ".pytest_tmp",
     ]:
         _safe_rmtree(root / name, root=root)
 
@@ -193,17 +195,47 @@ def cleanup() -> None:
     _clean_artifacts()
 
 
-def run_tests(cov_target: str) -> int:
+def _read_pyproject_project_name(root: Path) -> str | None:
+    pyproject_path = root / "pyproject.toml"
+    if not pyproject_path.is_file():
+        return None
+
+    try:
+        import tomllib  # type: ignore[attr-defined]
+
+        data: dict[str, Any] = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
+    except Exception:
+        try:
+            import tomli  # type: ignore[import-not-found]
+
+            data = tomli.loads(pyproject_path.read_text(encoding="utf-8"))
+        except Exception:
+            return None
+
+    project = data.get("project")
+    if not isinstance(project, dict):
+        return None
+    name = project.get("name")
+    if not isinstance(name, str) or not name.strip():
+        return None
+    return name.strip()
+
+
+def run_tests() -> int:
+    root = _repo_root()
+    project_name = _read_pyproject_project_name(root)
+    cov_target = project_name.replace("-", "_") if project_name else None
     args = [
         sys.executable,
         "-m",
         "pytest",
     ]
-    if importlib.util.find_spec("pytest_cov") is not None:
+    if cov_target and importlib.util.find_spec("pytest_cov") is not None:
         args.extend(["--cov-report", "term", f"--cov={cov_target}"])
-    if Path("tests").is_dir():
-        args.append("tests")
-    return subprocess.run(args).returncode
+    tests_dir = root / "tests"
+    if tests_dir.is_dir():
+        args.append(str(tests_dir))
+    return subprocess.run(args, cwd=str(root)).returncode
 
 
 def check_format() -> int:
@@ -221,5 +253,4 @@ def ci() -> int:
     test_result = subprocess.run(["uv", "run", "pytest"])
     if test_result.returncode != 0:
         return test_result.returncode
-    generate_badge()
-    return 1
+    return int(generate_badge())

@@ -37,8 +37,7 @@ ci = "qpyci.commands:ci"
 Then call them:
 
 ```bash
-ci-clean
-qpyci coverage your_package
+qpyci coverage
 ```
 
 If the GitHub repo is private, use either an SSH remote (`git+ssh://...`) or an HTTPS URL with a GitHub token (PAT) available to your CI.
@@ -63,10 +62,10 @@ Generate `coverage.svg` (uses `coverage-badge` if available; otherwise no-op):
 qpyci badge
 ```
 
-Run tests with coverage for a target (requires `pytest`; uses `pytest-cov` if installed; exits with pytest’s status code):
+Run tests with coverage for the current project (reads `project.name` from `pyproject.toml`; requires `pytest`; uses `pytest-cov` if installed):
 
 ```bash
-qpyci coverage qpyci
+qpyci coverage
 ```
 
 Run ruff autofix + format (requires `uv`/`uvx` and `ruff`):

@@ -15,9 +15,9 @@ def cleanup():
 
 
 @app.command()
-def coverage(cov_target: str):
-    """Run tests with coverage for the specified target."""
-    raise typer.Exit(code=c.run_tests(cov_target))
+def coverage():
+    """Run tests with coverage for the current project."""
+    raise typer.Exit(code=c.run_tests())
 
 
 @app.command()
