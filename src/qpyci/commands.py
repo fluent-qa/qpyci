@@ -7,10 +7,11 @@ import os
 import stat
 import traceback
 import time
-
+from typing import List
 
 root = Path.cwd()
 BUILD_DIRs = [root / "dist", root / "build", root / "__pycache__", root / ".pytest_cache/"]
+_SKIP_WALK_DIR_NAMES = {".venv", ".git", ".hg", ".svn", ".tox", ".nox", "node_modules"}
 
 
 def generate_badge():
@@ -22,9 +23,6 @@ def generate_badge():
         return subprocess.run([sys.executable, "-m", "coverage_badge", "-f", "-o", "coverage.svg"]).returncode
 
     return 0
-
-
-_SKIP_WALK_DIR_NAMES = {".venv", ".git", ".hg", ".svn", ".tox", ".nox", "node_modules"}
 
 
 def _log(message: str) -> None:
@@ -43,13 +41,17 @@ def _repo_root() -> Path:
     return _find_repo_root(Path.cwd())
 
 
-def _iter_pycache_dirs(root: Path) -> list[Path]:
+def _iter_dirs(root: Path, folder_name: str) -> List[Path]:
     results: list[Path] = []
     for dirpath, dirnames, _filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in _SKIP_WALK_DIR_NAMES]
-        if "__pycache__" in dirnames:
-            results.append(Path(dirpath) / "__pycache__")
+        if folder_name in dirnames:
+            results.append(Path(dirpath) / folder_name)
     return results
+
+
+def _iter_pycache_dirs(root: Path) -> list[Path]:
+    return _iter_dirs(root, "__pycache__")
 
 
 def _retry(action, *, attempts: int = 3, base_delay_s: float = 0.2) -> None:
@@ -217,4 +219,4 @@ def ci() -> int:
     if test_result.returncode != 0:
         return test_result.returncode
     generate_badge()
-    return test_result.returncode
+    return 1
